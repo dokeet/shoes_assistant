@@ -12,32 +12,29 @@ Download it [here](https://drive.google.com/file/d/1BxcPw2mn0VYFucc62wlt9H0nQiOu
 
 I recommend getting familiar with fetching, cleaning, and storing data as outlined in the scraping and embedding scripts below, but feel free to skip those steps and just use the dataset.
 
-## How It Works
+## How it works
 
-Paul Graham GPT provides 2 things:
+### scripts / scrapping part
 
-1. A search interface.
-2. A chat interface.
+- Usamos el csv adidas_usa.csv para convertir a json
+- Le pasamos const inputText = `${product.name} ${product.brand} ${product.category} ${product.description}`
+- Generamos embeddings, que despues guardamos en nuestra base de datos de supabase, revisar archivo embed.ts
 
-### Search
+### front
 
-Search was created with [OpenAI Embeddings](https://platform.openai.com/docs/guides/embeddings) (`text-embedding-ada-002`).
+- Usamos la query del usuario para generar un embedding que despues usamos para buscar que embedding generado de nuestro producto
+  tiene mayor similitud, sacamos 5 resultados, revisar archivo pages/api/search
+- Le mandamos a open ai este prompt:
 
-First, we loop over the essays and generate embeddings for each chunk of text.
+```
+Use the following products to recommend a product to our client: "what about white shoes?"
 
-Then in the app we take the user's search query, generate an embedding, and use the result to find the most similar passages from the book.
+name: Swift X Shoes color: Red category: Shoes description: If you're looking for versatility, look no further than these adidas Swift X Shoes. Because the streamlined, Colorful style means you can keep things subtle, or go big on the drama. Maybe a mix of both? The point is, it's your call, and these go with just about any outfit. In fact, we can't think of one it wouldn't go with. Who doesn't love a ball gown and sneakers? A statement is a statement no matter where you are.
 
-The comparison is done using cosine similarity across our database of vectors.
+name: Swift X Shoes color: White category: Shoes description: If you're looking for versatility, look no further than these adidas Swift X Shoes. Because the streamlined, Colorful style means you can keep things subtle, or go big on the drama. Maybe a mix of both? The point is, it's your call, and these go with just about any outfit. In fact, we can't think of one it wouldn't go with. Who doesn't love a ball gown and sneakers? A statement is a statement no matter where you are.
+```
 
-Our database is a Postgres database with the [pgvector](https://github.com/pgvector/pgvector) extension hosted on [Supabase](https://supabase.com/).
-
-Results are ranked by similarity score and returned to the user.
-
-### Chat
-
-Chat builds on top of search. It uses search results to create a prompt that is fed into GPT-3.5-turbo.
-
-This allows for a chat-like experience where the user can ask questions about the book and get answers.
+Esto lo usamos de contexto para que OpenAI nos pueda dar una buena respuesta.
 
 ## Running Locally
 
