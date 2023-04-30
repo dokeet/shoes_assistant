@@ -92,13 +92,13 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [mode, setMode] = useState<"search" | "chat">("chat");
   const [matchCount, setMatchCount] = useState<number>(3);
-  const [apiKey, setApiKey] = useState<string>("");
+  // const [apiKey, setApiKey] = useState<string>(process.env.OPENAI_API_KEY);
 
   const handleSearch = async () => {
-    if (!apiKey) {
-      alert("Please enter an API key.");
-      return;
-    }
+    // if (!apiKey) {
+    //   alert("Please enter an API key.");
+    //   return;
+    // }
 
     if (!query) {
       alert("Please enter a query.");
@@ -115,7 +115,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query, apiKey, matches: matchCount }),
+      body: JSON.stringify({ query, matches: matchCount }),
     });
 
     if (!searchResponse.ok) {
@@ -135,10 +135,10 @@ export default function Home() {
   };
 
   const handleAnswer = async () => {
-    if (!apiKey) {
-      alert("Please enter an API key.");
-      return;
-    }
+    // if (!apiKey) {
+    //   alert("Please enter an API key.");
+    //   return;
+    // }
 
     if (!query) {
       alert("Please enter a query.");
@@ -155,7 +155,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query, apiKey, matches: matchCount }),
+      body: JSON.stringify({ query, matches: matchCount }),
     });
 
     if (!searchResponse.ok) {
@@ -208,7 +208,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt, apiKey }),
+      body: JSON.stringify({ prompt }),
     });
 
     if (!answerResponse.ok) {
@@ -249,12 +249,12 @@ export default function Home() {
   };
 
   const handleSave = () => {
-    if (apiKey.length !== 51) {
-      alert("Please enter a valid API key.");
-      return;
-    }
+    // if (apiKey.length !== 51) {
+    //   alert("Please enter a valid API key.");
+    //   return;
+    // }
 
-    localStorage.setItem("PG_KEY", apiKey);
+    // localStorage.setItem("PG_KEY", apiKey);
     localStorage.setItem("PG_MATCH_COUNT", matchCount.toString());
     localStorage.setItem("PG_MODE", mode);
 
@@ -281,21 +281,21 @@ export default function Home() {
   }, [matchCount]);
 
   useEffect(() => {
-    const PG_KEY = localStorage.getItem("PG_KEY");
-    const PG_MATCH_COUNT = localStorage.getItem("PG_MATCH_COUNT");
-    const PG_MODE = localStorage.getItem("PG_MODE");
+    // const PG_KEY = localStorage.getItem("PG_KEY");
+    // const PG_MATCH_COUNT = localStorage.getItem("PG_MATCH_COUNT");
+    // const PG_MODE = localStorage.getItem("PG_MODE");
 
-    if (PG_KEY) {
-      setApiKey(PG_KEY);
-    }
+    // if (PG_KEY) {
+    //   setApiKey(PG_KEY);
+    // }
 
-    if (PG_MATCH_COUNT) {
-      setMatchCount(parseInt(PG_MATCH_COUNT));
-    }
+    // if (PG_MATCH_COUNT) {
+    //   setMatchCount(parseInt(PG_MATCH_COUNT));
+    // }
 
-    if (PG_MODE) {
-      setMode(PG_MODE as "search" | "chat");
-    }
+    // if (PG_MODE) {
+    //   setMode(PG_MODE as "search" | "chat");
+    // }
 
     inputRef.current?.focus();
   }, []);
