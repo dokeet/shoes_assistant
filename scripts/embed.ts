@@ -70,7 +70,71 @@ const generateEmbeddings = async (essays: PGEssay[]) => {
 
 //   await generateEmbeddings(book.essays);
 // })();
+const generateEmbeddingsFromCsv2 = async (products) => {
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const openai = new OpenAIApi(configuration);
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  for (let i = 0; i < products.length; i++) {
+    const product = products[i];
+    const detailsContent = product.accordions?.find(
+      (accordion: any) => accordion.title === "Detalles"
+    )?.content;
+    const filteredLines = detailsContent?.filter(
+      (line: string) => !line.startsWith("Color del artículo")
+    );
+    const filteredDetailsContent = filteredLines?.join(" - ");
+    // Combine relevant fields for generating embeddings
+    const inputText = `${product.name} ${product.category} color: ${
+      product.color.split("/")[0]
+    } ${detailsContent ? ` ${filteredDetailsContent}` : ""}`;
+
+    console.log(inputText);
+    const embeddingResponse = await openai.createEmbedding({
+      model: "text-embedding-ada-002",
+      input: inputText,
+    });
+
+    const [{ embedding }] = embeddingResponse.data.data;
+    const sellingPrice = parseFloat(
+      product.price.replace("$", "").replace(",", "").trim()
+    );
+
+    const sizes = product.sizes.map((size) => ({
+      size: size.size,
+      inStock: size.inStock,
+    }));
+
+    const { data, error } = await supabase
+      .from("custom_products")
+      .insert({
+        name: product.name,
+        category: product.category,
+        rating: product.rating,
+        price: sellingPrice,
+        color: product.color,
+        sizes: JSON.stringify(sizes),
+        images: JSON.stringify(product.images),
+        accordions: JSON.stringify(product.accordions),
+        embedding: embedding,
+      })
+      .select("*");
+
+    if (error) {
+      console.log("error", error);
+    } else {
+      console.log("saved", i);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+};
 const generateEmbeddingsFromCsv = async (products) => {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
@@ -141,7 +205,7 @@ const generateEmbeddingsFromCsv = async (products) => {
 };
 
 (async () => {
-  const products = JSON.parse(fs.readFileSync("scripts/output.json", "utf8"));
+  const products = JSON.parse(fs.readFileSync("scripts/output2.json", "utf8"));
 
-  await generateEmbeddingsFromCsv(products);
+  await generateEmbeddingsFromCsv2(products);
 })();
