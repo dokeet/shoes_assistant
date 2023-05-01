@@ -12,6 +12,9 @@ import Head from "next/head";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import data from "../scripts/output2.json";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -313,70 +316,62 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-auto">
-          <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center px-3 pt-4 sm:pt-8">
-            <div className="relative w-full mt-4">
-              <IconSearch className="absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
-
-              <input
-                ref={inputRef}
-                className="h-12 w-full rounded-full border border-zinc-600 pr-12 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
-                type="text"
-                placeholder="Do you have white Stan Smith?"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-
-              <button>
-                <IconArrowRight
-                  onClick={mode === "search" ? handleSearch : handleAnswer}
-                  className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-blue-500 p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10 text-white"
-                />
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="mt-6 w-full">
-                {mode === "chat" && (
-                  <>
-                    <div className="font-bold text-2xl">Answer</div>
-                    <div className="animate-pulse mt-2">
-                      <div className="h-4 bg-gray-300 rounded"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : answer ? (
-              <div className="mt-6">
-                <div className="font-bold text-2xl mb-2">Answer</div>
-                <div className="max-h-[300px] h-full">{answer}</div>
-                <div className="max-w-[100%] pb-12">
-                  {chunks?.map((chunk) => (
-                    <div key={chunk.id} className="flex flex-col min-w-[300px]">
-                      <div className="h-auto overflow-scroll flex snap-x">
-                        {JSON.parse(chunk?.images).map((image, i) => (
-                          <img
-                            src={image}
-                            className="w-[300px] h-auto snap-center"
-                          />
-                        ))}
-                      </div>
-                      <h2 className="font-bold text-base mt-6 mb-2">
-                        {chunk.name}
-                      </h2>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+      <div className="p-2">
+        <div>
+          <div className="flex gap-2 relative">
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Do you have white Stan Smith?"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <Button
+              onClick={mode === "search" ? handleSearch : handleAnswer}
+              className="text-sm absolute right-0 bg-transparent"
+            >
+              🔍
+            </Button>
           </div>
+          {loading ? (
+            <div className="mt-6 w-full">
+              {mode === "chat" && (
+                <>
+                  <div className="font-bold text-2xl">Answer</div>
+                  <div className="animate-pulse mt-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                    <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                    <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                    <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                    <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : answer ? (
+            <div className="px-2 py-4">
+              <div className="font-bold text-2xl mb-2">Answer</div>
+              <div className="max-h-[400px] h-full">{answer}</div>
+              <div className="max-w-[100%] pb-12 flex flex-col gap-3">
+                {chunks?.map((chunk) => (
+                  <Card key={chunk.id} className="flex flex-col min-w-[300px]">
+                    <div className="h-auto overflow-scroll flex snap-x rounded-t-md">
+                      {JSON.parse(chunk?.images).map((image, i) => (
+                        <img
+                          src={image}
+                          className="w-[300px] h-auto snap-center"
+                        />
+                      ))}
+                    </div>
+                    <h2 className="font-bold text-base mt-2 mb-2 px-2">
+                      {chunk.name}
+                    </h2>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </>

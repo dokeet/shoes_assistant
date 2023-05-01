@@ -8,7 +8,6 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { query, matches } = (await req.json()) as {
       query: string;
-      apiKey: string;
       matches: number;
     };
 
