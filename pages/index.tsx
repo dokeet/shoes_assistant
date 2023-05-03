@@ -15,6 +15,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -91,7 +92,7 @@ export default function Home() {
   ]);
   const [answer, setAnswer] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [prediction, setPrediction] = useState<string>("");
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [mode, setMode] = useState<"search" | "chat">("chat");
   const [matchCount, setMatchCount] = useState<number>(3);
@@ -305,6 +306,41 @@ export default function Home() {
   // console.log(chunks);
   // console.log(answer);
   // console.log(query);
+
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+
+    const base64Image = await readFileAsDataURL(file);
+
+    const response = await fetch("/api/image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        image_path: base64Image,
+        prompt: "Adidas sneakers",
+      }),
+    });
+    let prediction = await response.json();
+    if (response.status !== 201) {
+      console.log(prediction.detail);
+      return;
+    }
+
+    setPrediction(prediction);
+    console.log(prediction);
+  };
+
   return (
     <>
       <Head>
@@ -318,6 +354,7 @@ export default function Home() {
       </Head>
       <div className="p-2">
         <div>
+          {/* <input type="file" onChange={handleFileChange} /> */}
           <div className="flex gap-2 relative">
             <Input
               ref={inputRef}
@@ -334,6 +371,14 @@ export default function Home() {
               🔍
             </Button>
           </div>
+          {/* {prediction && (
+            <div className="mt-6 w-full">
+              <div className="font-bold text-2xl">Prediction</div>
+              <div className="mt-2">
+                <img src={prediction[1]} />
+              </div>
+            </div>
+          )} */}
           {loading ? (
             <div className="mt-6 w-full">
               {mode === "chat" && (
