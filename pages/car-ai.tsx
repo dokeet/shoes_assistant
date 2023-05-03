@@ -266,7 +266,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Not Karby</title>
+        <title>Car AI</title>
         <meta
           name="description"
           content={`AI-powered search and chat for Paul Graham's essays.`}
@@ -319,7 +319,7 @@ export default function Home() {
           ) : answer ? (
             <div className="px-2 py-4">
               <div className="max-w-4xl flex items-center w-full flex-col  justify-center pb-6 mx-auto">
-                <div className="font-bold text-2xl mb-2">Karby:</div>
+                <div className="font-bold text-2xl mb-2">Car AI:</div>
                 <div className="max-h-[400px] h-full">{answer}</div>
               </div>
               <div className="max-w-[100%] pb-12 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4">
