@@ -271,7 +271,6 @@ export default function Home() {
     localStorage.removeItem("PG_MATCH_COUNT");
     localStorage.removeItem("PG_MODE");
 
-    setApiKey("");
     setMatchCount(5);
     setMode("search");
   };
