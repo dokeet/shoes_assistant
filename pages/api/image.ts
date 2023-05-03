@@ -5,11 +5,11 @@ const replicate = new Replicate({
 });
 
 export default async function handler(req, res) {
-  //   if (!process.env.REPLICATE_API_TOKEN) {
-  //     throw new Error(
-  //       "The REPLICATE_API_TOKEN environment variable is not set. See README.md for instructions on how to set it."
-  //     );
-  //   }
+  if (!process.env.REPLICATE_API_TOKEN) {
+    throw new Error(
+      "The REPLICATE_API_TOKEN environment variable is not set. See README.md for instructions on how to set it."
+    );
+  }
 
   //   const prediction = await replicate.predictions.create({
   //     // Pinned to a specific version of Stable Diffusion
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   //     input: { prompt: req.body.prompt },
   //   });
 
-  const output = await replicate.run(
+  const output: any = await replicate.run(
     "logerzhu/ad-inpaint:7153aacd47daea504224c6223b45f4293acb05a6d860c3d7e968af3d833f1548",
     {
       input: {

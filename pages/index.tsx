@@ -127,7 +127,7 @@ export default function Home() {
       throw new Error(searchResponse.statusText);
     }
 
-    const results: PGChunk[] = await searchResponse.json();
+    const results = await searchResponse.json();
 
     setChunks(results);
 
@@ -168,7 +168,7 @@ export default function Home() {
     }
     console.log("search", searchResponse);
 
-    const results: PGChunk[] = await searchResponse.json();
+    const results = await searchResponse.json();
 
     setChunks(results);
     console.log(results);
@@ -403,6 +403,7 @@ export default function Home() {
                     <div className="h-auto overflow-scroll flex snap-x rounded-t-md">
                       {JSON.parse(chunk?.images).map((image, i) => (
                         <img
+                          key={image}
                           src={image}
                           className="w-[300px] h-auto snap-center"
                         />
