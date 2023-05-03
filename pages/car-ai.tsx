@@ -269,7 +269,7 @@ export default function Home() {
         <title>Car AI</title>
         <meta
           name="description"
-          content={`AI-powered search and chat for Paul Graham's essays.`}
+          content={`AI-powered search for used cars - Car AI`}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
