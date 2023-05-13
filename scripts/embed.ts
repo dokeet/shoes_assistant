@@ -204,8 +204,78 @@ const generateEmbeddingsFromCsv = async (products) => {
   }
 };
 
-(async () => {
-  const products = JSON.parse(fs.readFileSync("scripts/output2.json", "utf8"));
+const generateEmbeddingsForCars = async (cars) => {
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const openai = new OpenAIApi(configuration);
 
-  await generateEmbeddingsFromCsv2(products);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  for (let i = 0; i < cars.length; i++) {
+    const car = cars[i];
+
+    const {
+      id,
+      city,
+      state,
+      year,
+      brand,
+      model,
+      version,
+      price,
+      mileage,
+      image,
+      certificate,
+      promoted,
+      booking,
+      financing,
+    } = car;
+
+    const inputText = `brand:${brand} model:${model} version:${version} year:${year} price:${price} mileage:${mileage}`;
+    const embeddingResponse = await openai.createEmbedding({
+      model: "text-embedding-ada-002",
+      input: inputText,
+    });
+
+    const [{ embedding }] = embeddingResponse.data.data;
+
+    const { data, error } = await supabase
+      .from("cars")
+      .insert({
+        id,
+        city,
+        state,
+        year,
+        brand,
+        model,
+        version,
+        price,
+        mileage,
+        image,
+        certificate,
+        promoted,
+        booking,
+        financing,
+        embedding,
+      })
+      .select("*");
+
+    if (error) {
+      console.log("error", error);
+    } else {
+      console.log("saved", i);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+};
+
+(async () => {
+  const products = JSON.parse(fs.readFileSync("scripts/cars.json", "utf8"));
+
+  await generateEmbeddingsForCars(products.items);
 })();
