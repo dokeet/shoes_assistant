@@ -88,8 +88,8 @@ export default function Home() {
       similarity: 0.787782180144006,
     },
   ]);
-  const [answer, setAnswer] = useState<string>("");
-  const [responseAdded, setResponseAdded] = useState(false);
+  // const [answer, setAnswer] = useState<string>("");
+  // const [responseAdded, setResponseAdded] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [history, setHistory] = useState<any>([]);
   // const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -108,7 +108,7 @@ export default function Home() {
       return;
     }
 
-    setAnswer("");
+    // setAnswer("");
     setChunks([]);
 
     setLoading(true);
@@ -120,7 +120,7 @@ export default function Home() {
       },
       body: JSON.stringify({ query, matches: matchCount }),
     });
-    console.log("query in search response", query);
+    // console.log("query in search response", query);
     if (!searchResponse.ok) {
       setLoading(false);
       throw new Error(searchResponse.statusText);
@@ -169,7 +169,7 @@ export default function Home() {
       },
       body: JSON.stringify({ query, matches: matchCount }),
     });
-    console.log("query", query);
+    // console.log("query", query);
     if (!searchResponse.ok) {
       setLoading(false);
       throw new Error(searchResponse.statusText);
@@ -231,7 +231,7 @@ export default function Home() {
     }
 
     const data = answerResponse.body;
-    console.log("data", data);
+    // console.log("data", data);
     if (!data) {
       return;
     }
@@ -239,43 +239,36 @@ export default function Home() {
     const reader = data.getReader();
     const decoder = new TextDecoder();
     let done = false;
-    setResponseAdded(false);
+    // setResponseAdded(false);
+    let answer = "";
     while (!done) {
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
       const chunkValue = decoder.decode(value);
-      setAnswer((prev) => prev + chunkValue);
+      // console.log(chunkValue);
+      answer += chunkValue;
+      // setAnswer((prev) => prev + chunkValue);
       // generar id al hacer un submit
       // const newMessage = await getAnswer(prompt)
-
-      // if (done && !responseAdded) {
-      //   setResponseAdded(true);
-      // }
+      // console.log("answer", answer);
+      if (done) {
+        setHistory((prevHistory: any) => [
+          ...prevHistory,
+          {
+            role: "ai",
+            content: answer,
+            chunks: results,
+          },
+        ]);
+      }
     }
-    // setHistory((prevHistory: any) => [
-    //   ...prevHistory,
-    //   {
-    //     role: "ai",
-    //     content: answer,
-    //     chunks: results,
-    //   },
-    // ]);
     setLoading(false);
     inputRef.current?.focus();
   };
 
-  // useEffect(() => {
-  //   if (responseAdded) {
-  //     setHistory((prevHistory: any) => [
-  //       ...prevHistory,
-  //       {
-  //         role: "ai",
-  //         content: answer,
-  //         chunks: chunks,
-  //       },
-  //     ]);
-  //   }
-  // }, [answer, responseAdded]);
+  // const getAnswer = async () => {
+  //   await answer;
+  // };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -344,7 +337,7 @@ export default function Home() {
   // console.log("history", history);
   // console.log("answer", answer);
   return (
-    <div className="flex flex-col justify-between h-screen overflow-y-auto p-4 bg-gray-100 sm:col-span-2 sm:col-end-9">
+    <div className="flex flex-col justify-between p-4 bg-gray-100 sm:col-span-2 sm:col-end-9">
       <div className="p-2 flex flex-col">
         {history.map((item: any, i: number) => {
           // console.log("chunks", item.chunks);

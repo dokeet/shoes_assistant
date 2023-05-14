@@ -1,12 +1,13 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Card } from "../ui/card";
 import Image from "next/image";
 
 interface CardImagesProps {
   chunk: any;
+  information: ReactNode;
 }
 
-export default function CardImages({ chunk }: CardImagesProps) {
+export default function CardImages({ chunk, information }: CardImagesProps) {
   return (
     <Card key={chunk.id} className="flex flex-col max-w-[300px] ml-3">
       <div className="h-auto overscroll-x-auto overflow-x-auto scroll-smooth overscroll-y-none flex snap-x rounded-t-md">
@@ -24,9 +25,7 @@ export default function CardImages({ chunk }: CardImagesProps) {
           );
         })}
       </div>
-      <h2 className="font-bold text-base mt-2 mb-2 px-2 max-h-16 text-ellipsis overflow-hidden whitespace-nowrap">
-        {chunk.name}
-      </h2>
+      {information}
     </Card>
   );
 }

@@ -34,7 +34,16 @@ const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
               // console.log("chunk", chunk);
               return (
                 <SwiperSlide key={chunk.id}>
-                  <CardImages chunk={chunk} />
+                  <CardImages
+                    chunk={chunk}
+                    information={
+                      <div>
+                        <h2 className="font-bold text-base mt-2 mb-2 px-2 max-h-16 text-ellipsis overflow-hidden whitespace-nowrap">
+                          {chunk.name}
+                        </h2>
+                      </div>
+                    }
+                  />
                 </SwiperSlide>
               );
             })}
