@@ -1,0 +1,20 @@
+.swiper-button-prev {
+  background-image: url("../components/Icons/CarouselArrow.svg");
+  transform: rotate(180deg);
+}
+
+.swiper-button-next {
+  background-image: url("../components/Icons/CarouselArrow.svg");
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  display: none;
+}
