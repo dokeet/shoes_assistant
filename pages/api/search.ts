@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
         match_count: matches,
       }
     );
-    console.log(chunks);
+    // console.log(chunks);
     if (error) {
       console.error(error);
       return new Response("Error", { status: 500 });

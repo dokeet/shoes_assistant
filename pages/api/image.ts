@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       },
     }
   );
-  console.log(output);
+  // console.log(output);
   if (output?.error) {
     res.statusCode = 500;
     res.end(JSON.stringify({ detail: output.error }));

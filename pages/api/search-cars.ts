@@ -32,7 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
       similarity_threshold: 0.01,
       match_count: matches,
     });
-    console.log(chunks);
+    // console.log(chunks);
     if (error) {
       console.error(error);
       return new Response("Error", { status: 500 });
