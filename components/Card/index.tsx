@@ -16,7 +16,7 @@ export default function CardImages({
 }: CardImagesProps) {
   return (
     <Card key={chunk.id} className={className}>
-      <div className="h-auto overscroll-x-auto overflow-x-auto scroll-smooth overscroll-y-none flex snap-x rounded-t-md">
+      <div className="h-auto overscroll-x-auto overflow-x-auto scroll-smooth overscroll-y-none flex snap-x rounded-t-2xl">
         {children}
       </div>
       {information}

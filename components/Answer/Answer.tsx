@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import Image from "next/image";
 import "swiper/css/navigation";
+import { lowercase } from "@/utils/lowerCase";
 
 interface AnswerProps {
   images: Array<any>;
@@ -12,7 +13,6 @@ interface AnswerProps {
 }
 
 const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
-  // console.log("images", images);
   return (
     <div className="self-start max-w-xs mt-4 w-full">
       <div className="shadow-md bg-gray-600 p-4 rounded-tl-2xl rounded-r-2xl font text-sm text-white">
@@ -27,7 +27,9 @@ const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
               chunk={chunk}
               information={
                 <div className="flex justify-center">
-                  <h2 className="font-bold text-base m-2 h-12">{chunk.name}</h2>
+                  <h2 className="font-bold text-base m-2 h-12">
+                    {lowercase(chunk.name)}
+                  </h2>
                 </div>
               }
             >
@@ -46,7 +48,6 @@ const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
                         height={230}
                         alt={`image of ${chunk.name}`}
                         src={image}
-                        // className="w-[300px] h-auto snap-center"
                       />
                     </SwiperSlide>
                   );

@@ -3,6 +3,7 @@ import endent from "endent";
 import { shoes } from "utils/mock";
 import Image from "next/image";
 import CardImages from "../Card";
+import { lowercase } from "@/utils/lowerCase";
 
 interface ProductsListProps {
   setHistory: (e: any) => void;
@@ -20,13 +21,12 @@ const ProductsList: React.FC<ProductsListProps> = ({
       ...prevHistory,
       {
         role: "user",
-        content: query,
+        content: `I would like to know about ${lowercase(query)}`,
         chunks: [],
       },
     ]);
 
     setLoading(true);
-    //  chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
 
     // search conincidences
     const searchResponse = await fetch("/api/search", {
@@ -42,8 +42,6 @@ const ProductsList: React.FC<ProductsListProps> = ({
     }
 
     const results = await searchResponse.json();
-    // console.log(results);
-    console.log("results", results);
 
     const prompt = endent`
  Based on previous messages: ${history.map((item) => {
@@ -74,7 +72,6 @@ const ProductsList: React.FC<ProductsListProps> = ({
             (line: string) => !line.startsWith("  - Color del artículo")
           );
           const filteredDetailsContent = filteredLines.join("\n");
-          // console.log("filteredDetailsContent", filteredDetailsContent);
           return `name: ${d.name} color: ${d.color.split("/")[0]}  category: ${
             d.category
           } | ${filteredDetailsContent}`;
@@ -82,8 +79,6 @@ const ProductsList: React.FC<ProductsListProps> = ({
         .join("\n\n")}
       `;
 
-    // console.log("propmt2", prompt2);
-    // console.log("prompt", prompt);
     //AI answers
     const answerResponse = await fetch("/api/answer", {
       method: "POST",
@@ -124,11 +119,8 @@ const ProductsList: React.FC<ProductsListProps> = ({
         ]);
       }
     }
-    //  chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
 
     setLoading(false);
-
-    //  inputRef.current?.focus();
   };
 
   return (
@@ -145,7 +137,9 @@ const ProductsList: React.FC<ProductsListProps> = ({
               className="flex flex-col w-[250px] h-auto"
               information={
                 <div className="flex justify-center">
-                  <h2 className="font-bold text-base m-2 h-12">{item.name}</h2>
+                  <h2 className="font-bold text-base m-2 h-12">
+                    {lowercase(item.name)}
+                  </h2>
                 </div>
               }
             >
