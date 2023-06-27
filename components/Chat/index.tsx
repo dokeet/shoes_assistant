@@ -16,9 +16,9 @@ const Chat: React.FC<ChatProps> = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { messages, input, handleInputChange, handleSubmit } = useChat();
 
-  useEffect(() => {
-    chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [history]);
+  // useEffect(() => {
+  //   chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [history]);
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
