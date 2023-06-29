@@ -18,13 +18,13 @@ export default async function POST(req) {
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     stream: true,
+    temperature: 0,
     messages: messages.map((message: any) => ({
       content: message.content,
       role: message.role,
     })),
   });
 
-  console.log("response", response);
   // Transformar la respueda de OpenAi e un text-stream
   const stream = OpenAIStream(response);
   return new StreamingTextResponse(stream);
