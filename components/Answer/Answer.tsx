@@ -15,9 +15,11 @@ interface AnswerProps {
 const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
   return (
     <div className="self-start max-w-xs mt-4 w-full">
-      <div className="shadow-md bg-gray-600 p-4 rounded-tl-2xl rounded-r-2xl font text-sm text-white">
-        {answer}
-      </div>
+      {answer ? (
+        <div className="shadow-md bg-gray-600 p-4 rounded-tl-2xl rounded-r-2xl font text-sm text-white">
+          {answer}
+        </div>
+      ) : null}
       <div className="w-full mt-4 flex overflow-x-auto rounded-2xl">
         {images?.map((chunk: any) => {
           return (
@@ -31,15 +33,13 @@ const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
                     {lowercase(chunk.name)}
                   </h2>
                 </div>
-              }
-            >
+              }>
               <Swiper
                 navigation={true}
                 modules={[Navigation]}
                 centeredSlides
                 mousewheel={false}
-                slidesPerView={1}
-              >
+                slidesPerView={1}>
                 {JSON.parse(chunk?.images).map((image: string, i: number) => {
                   return (
                     <SwiperSlide key={`${image + i}`}>

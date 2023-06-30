@@ -1,9 +1,16 @@
 import { supabaseAdmin } from "@/utils";
+import { Configuration, OpenAIApi } from "openai-edge";
 
-export const config = {
-  runtime: "edge",
-};
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+const config = new Configuration({
+  apiKey: OPENAI_API_KEY,
+});
+
+const openai = new OpenAIApi(config);
+
+export const runtime = "edge";
+
 const handler = async (req: Request): Promise<Response> => {
   try {
     const { query, matches } = (await req.json()) as {
@@ -13,19 +20,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const input = query.replace(/\n/g, " ");
 
-    const res = await fetch("https://api.openai.com/v1/embeddings", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      method: "POST",
-      body: JSON.stringify({
-        model: "text-embedding-ada-002",
-        input,
-      }),
+    const embeddingResponse = await openai.createEmbedding({
+      model: "text-embedding-ada-002",
+      input,
     });
 
-    const json = await res.json();
+    const json = await embeddingResponse.json();
     const embedding = json.data[0].embedding;
     const { data: chunks, error } = await supabaseAdmin.rpc(
       "pg_search_adidas",
@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
         match_count: matches,
       }
     );
-    // console.log(chunks);
+
     if (error) {
       console.error(error);
       return new Response("Error", { status: 500 });
