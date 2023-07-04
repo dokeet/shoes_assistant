@@ -17,17 +17,25 @@ const Chat: React.FC<ChatProps> = () => {
   const [loading, setLoading] = useState(false);
   const [recomendations, setRecomendations] = useState<any>();
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    initialInput: "I would like to know the Ultraboost model!",
+  });
+
+  const lastMessage = messages
+    .filter((item) => item.role === "user")
+    .slice(-1)
+    .pop();
 
   const getRecomendations = async () => {
-    const lastMessage = messages.filter((item) => item.role === "user").pop();
-    const query = lastMessage ? lastMessage.content : "";
     const searchResponse = await fetch("/api/search", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query, matches: 12 }),
+      body: JSON.stringify({
+        query: input,
+        matches: 10,
+      }),
     });
 
     if (!searchResponse.ok) {
@@ -36,12 +44,10 @@ const Chat: React.FC<ChatProps> = () => {
     }
     const results = await searchResponse.json();
     setRecomendations(results);
-    console.log("messages with results", messages.push(results));
     return results;
   };
 
   useEffect(() => {
-    console.log(messages);
     getRecomendations();
   }, []);
 
@@ -50,10 +56,10 @@ const Chat: React.FC<ChatProps> = () => {
     <div className="bg-gray-100 flex flex-col justify-between p-4 w-1/3 overflow-y-auto">
       <div className="p-2 flex flex-col">
         {messages.length > 0 ? (
-          messages.map((item: any, i: number) => {
+          messages.map((item: any) => {
             if (item.role === "user") {
               return (
-                <div key={i + item.role} className="flex flex-col">
+                <div key={item.id} className="flex flex-col">
                   <div className="bg-white shadow-md p-4 rounded-tr-2xl rounded-l-2xl self-end max-w-[240px] w-auto mt-4 text-end">
                     {item.content}
                   </div>
@@ -61,10 +67,9 @@ const Chat: React.FC<ChatProps> = () => {
               );
             }
             if (item.role === "assistant") {
+              console.log(item);
               return (
-                <div
-                  key={i + recomendations.id}
-                  className="flex flex-col pr-16">
+                <div key={item.id} className="flex flex-col pr-16">
                   <AnswerComponent
                     images={recomendations}
                     answer={item.content}
@@ -75,10 +80,10 @@ const Chat: React.FC<ChatProps> = () => {
           })
         ) : (
           <div className="p-4">
-            <div className="shadow-md bg-gray-600 p-4 rounded-tl-2xl rounded-r-2xl font text-sm text-white">
-              <h5>Would you like to check this?</h5>
-            </div>
-            <AnswerComponent images={recomendations} answer={""} />
+            <AnswerComponent
+              images={recomendations}
+              answer="Hi there! I am your Adidas assistant, how can I help you?"
+            />
           </div>
         )}
       </div>
@@ -87,7 +92,6 @@ const Chat: React.FC<ChatProps> = () => {
           <Input
             type="text"
             className="p-4 rounded-2xl h-12 mt-4 shadow-md"
-            placeholder="Want some Stan Smith?"
             value={input}
             onChange={handleInputChange}
             onKeyDown={() => handleSubmit}
