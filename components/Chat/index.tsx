@@ -1,25 +1,31 @@
 import AnswerComponent from "@/components/Answer/Answer";
-import endent from "endent";
-import { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useChat } from "ai/react";
+import { useQuery } from "@tanstack/react-query";
+import { append } from "cheerio/lib/api/manipulation";
+import { Message, CreateMessage } from "ai/react";
 
 interface ChatProps {
-  setHistory: (e: any) => void;
-  history: any;
-  setLoading: (a: boolean) => void;
-  loading: boolean;
+  messages: Message[];
+  input: string;
+  handleInputChange: (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+  ) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  append: (message: Message | CreateMessage) => Promise<string | undefined>;
 }
 
-const Chat: React.FC<ChatProps> = () => {
+const Chat: React.FC<ChatProps> = ({
+  messages,
+  input,
+  handleInputChange,
+  handleSubmit,
+  append,
+}) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
-  const [recomendations, setRecomendations] = useState<any>();
-
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    initialInput: "I would like to know the Ultraboost model!",
-  });
 
   const lastMessage = messages
     .filter((item) => item.role === "user")
@@ -39,20 +45,22 @@ const Chat: React.FC<ChatProps> = () => {
     });
 
     if (!searchResponse.ok) {
-      setLoading(false);
       throw new Error(searchResponse.statusText);
     }
     const results = await searchResponse.json();
-    setRecomendations(results);
     return results;
   };
 
-  useEffect(() => {
-    getRecomendations();
-  }, []);
+  const { isLoading, data: recomendations } = useQuery({
+    queryKey: ["getRecomendations"],
+    queryFn: getRecomendations,
+    refetchOnWindowFocus: false,
+  });
 
+  useEffect(() => {
+    chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
   return (
-    // <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
     <div className="bg-gray-100 flex flex-col justify-between p-4 w-1/3 overflow-y-auto">
       <div className="p-2 flex flex-col">
         {messages.length > 0 ? (
@@ -67,23 +75,42 @@ const Chat: React.FC<ChatProps> = () => {
               );
             }
             if (item.role === "assistant") {
-              console.log(item);
               return (
                 <div key={item.id} className="flex flex-col pr-16">
-                  <AnswerComponent
-                    images={recomendations}
-                    answer={item.content}
-                  />
+                  {!isLoading ? (
+                    <AnswerComponent
+                      images={recomendations}
+                      answer={item.content}
+                    />
+                  ) : (
+                    <div className="animate-pulse mt-2">
+                      <div className="h-4 bg-gray-300 rounded"></div>
+                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                    </div>
+                  )}
                 </div>
               );
             }
           })
         ) : (
           <div className="p-4">
-            <AnswerComponent
-              images={recomendations}
-              answer="Hi there! I am your Adidas assistant, how can I help you?"
-            />
+            {!isLoading ? (
+              <AnswerComponent
+                images={recomendations}
+                answer="Hi there! I am your Adidas assistant, how can I help you?"
+              />
+            ) : (
+              <div className="animate-pulse mt-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+                <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                <div className="h-4 bg-gray-300 rounded mt-2"></div>
+                <div className="h-4 bg-gray-300 rounded mt-2"></div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -91,14 +118,14 @@ const Chat: React.FC<ChatProps> = () => {
         <form onSubmit={handleSubmit}>
           <Input
             type="text"
-            className="p-4 rounded-2xl h-12 mt-4 shadow-md"
+            className="pl-4 pr-10 py-4 rounded-2xl h-12 mt-4 shadow-md"
             value={input}
             onChange={handleInputChange}
             onKeyDown={() => handleSubmit}
           />
           <Button
             onClick={() => handleSubmit}
-            className="text-xs lg:text-sm absolute bottom-1 right-0 bg-transparent">
+            className="text-xs lg:text-sm absolute bottom-1 right-0 bg-transparent hover:bg-transparent">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -116,7 +143,6 @@ const Chat: React.FC<ChatProps> = () => {
         </form>
       </div>
     </div>
-    // </div>
   );
 };
 
