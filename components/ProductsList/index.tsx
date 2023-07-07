@@ -1,128 +1,15 @@
-import React, { useState } from "react";
-import endent from "endent";
+import React from "react";
 import { shoes } from "utils/mock";
 import Image from "next/image";
 import CardImages from "../Card";
 import { lowercase } from "@/utils/lowerCase";
+import { Message, CreateMessage } from "ai/react";
 
 interface ProductsListProps {
-  setHistory: (e: any) => void;
-  setLoading: (a: boolean) => void;
-  history: any;
+  append: (message: Message | CreateMessage) => Promise<string>;
 }
 
-const ProductsList: React.FC<ProductsListProps> = ({
-  setHistory,
-  setLoading,
-  history,
-}) => {
-  const handleAnswer = async (query: any) => {
-    setHistory((prevHistory: any) => [
-      ...prevHistory,
-      {
-        role: "user",
-        content: `I would like to know about ${lowercase(query)}`,
-        chunks: [],
-      },
-    ]);
-
-    setLoading(true);
-
-    // search conincidences
-    const searchResponse = await fetch("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query, matches: 12 }),
-    });
-    if (!searchResponse.ok) {
-      setLoading(false);
-      throw new Error(searchResponse.statusText);
-    }
-
-    const results = await searchResponse.json();
-
-    const prompt = endent`
- Based on previous messages: ${history.map((item) => {
-   return `\n ${item.role}: ${item.content}`;
- })} let's recommend a shoe to our client: "${query}"
-      ${results
-        ?.map((d: any) => {
-          let accordionsString = "";
-          let accordions = [];
-          try {
-            accordions = JSON.parse(d.accordions);
-          } catch (e) {
-            console.log(e);
-            accordions = [];
-          }
-
-          if (accordions && accordions.length > 0) {
-            accordions.forEach((accordion: any) => {
-              accordionsString += `\n${accordion.title}:`;
-              accordion.content.forEach((contentItem: string) => {
-                accordionsString += `\n  - ${contentItem}`;
-              });
-            });
-          }
-          const lines = accordionsString.split("\n");
-          console.log("accordions", accordions);
-          const filteredLines = lines.filter(
-            (line: string) => !line.startsWith("  - Color del artículo")
-          );
-          const filteredDetailsContent = filteredLines.join("\n");
-          return `name: ${d.name} color: ${d.color.split("/")[0]}  category: ${
-            d.category
-          } | ${filteredDetailsContent}`;
-        })
-        .join("\n\n")}
-      `;
-
-    //AI answers
-    const answerResponse = await fetch("/api/answer", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt }),
-    });
-
-    if (!answerResponse.ok) {
-      setLoading(false);
-      throw new Error(answerResponse.statusText);
-    }
-
-    const data = answerResponse.body;
-    if (!data) {
-      return;
-    }
-
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-    let answer = "";
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      answer += chunkValue;
-
-      if (done) {
-        setHistory((prevHistory: any) => [
-          ...prevHistory,
-          {
-            role: "addidasChatBot",
-            content: answer,
-            chunks: results,
-          },
-        ]);
-      }
-    }
-
-    setLoading(false);
-  };
-
+const ProductsList: React.FC<ProductsListProps> = ({ append }) => {
   return (
     <div className="overflow-y-auto m-1 flex flex-wrap w-2/3 justify-center">
       {shoes.map((item) => {
@@ -130,8 +17,12 @@ const ProductsList: React.FC<ProductsListProps> = ({
           <button
             className="m-2"
             key={item.id}
-            onClick={() => handleAnswer(item.name)}
-          >
+            onClick={async () => {
+              await append({
+                role: "user",
+                content: `I would like to know about ${item.name}`,
+              });
+            }}>
             <CardImages
               chunk={item}
               className="flex flex-col w-[250px] h-auto"
@@ -141,8 +32,7 @@ const ProductsList: React.FC<ProductsListProps> = ({
                     {lowercase(item.name)}
                   </h2>
                 </div>
-              }
-            >
+              }>
               <Image
                 key={`${item.id}`}
                 width={250}

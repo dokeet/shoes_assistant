@@ -3,11 +3,23 @@ import Head from "next/head";
 import Layout from "@/components/Layout";
 import ProductsList from "@/components/ProductsList";
 import Chat from "@/components/Chat";
-import CarAi from "./car-ai";
+import { useChat } from "ai/react";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export default function Home() {
-  const [history, setHistory] = useState<any>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const {
+    messages,
+    append,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading: aiLoading,
+  } = useChat({
+    initialInput: "I would like to know about Ultraboost",
+  });
 
   return (
     <div>
@@ -20,19 +32,18 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Layout>
-        <ProductsList
-          setHistory={setHistory}
-          setLoading={setLoading}
-          history={history}
-        />
-        <Chat
-          setHistory={setHistory}
-          history={history}
-          setLoading={setLoading}
-          loading={loading}
-        />
-      </Layout>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <ProductsList append={append} />
+          <Chat
+            messages={messages}
+            input={input}
+            handleInputChange={handleInputChange}
+            handleSubmit={handleSubmit}
+            append={append}
+          />
+        </Layout>
+      </QueryClientProvider>
     </div>
   );
 }
