@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 export default function Home() {
+  const [isProductHome, setIsProductHome] = useState(false);
   const {
     messages,
     append,
@@ -17,9 +18,7 @@ export default function Home() {
     handleInputChange,
     handleSubmit,
     isLoading: aiLoading,
-  } = useChat({
-    initialInput: "I would like to know about Ultraboost",
-  });
+  } = useChat();
 
   return (
     <div>
@@ -34,13 +33,15 @@ export default function Home() {
       </Head>
       <QueryClientProvider client={queryClient}>
         <Layout>
-          <ProductsList append={append} />
+          <ProductsList append={append} setIsProductHome={setIsProductHome} />
           <Chat
             messages={messages}
             input={input}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
             append={append}
+            isProductHome={isProductHome}
+            setIsProductHome={setIsProductHome}
           />
         </Layout>
       </QueryClientProvider>

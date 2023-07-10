@@ -7,9 +7,21 @@ import { Message, CreateMessage } from "ai/react";
 
 interface ProductsListProps {
   append: (message: Message | CreateMessage) => Promise<string>;
+  setIsProductHome: (a: boolean) => void;
 }
 
-const ProductsList: React.FC<ProductsListProps> = ({ append }) => {
+const ProductsList: React.FC<ProductsListProps> = ({
+  append,
+  setIsProductHome,
+}) => {
+  // append the selected product into messages
+  const handleClick = async (productName) => {
+    await append({
+      role: "user",
+      content: `I would like to know about ${lowercase(productName)}`,
+    });
+  };
+
   return (
     <div className="overflow-y-auto m-1 flex flex-wrap w-2/3 justify-center">
       {shoes.map((item) => {
@@ -17,11 +29,9 @@ const ProductsList: React.FC<ProductsListProps> = ({ append }) => {
           <button
             className="m-2"
             key={item.id}
-            onClick={async () => {
-              await append({
-                role: "user",
-                content: `I would like to know about ${item.name}`,
-              });
+            onClick={() => {
+              setIsProductHome(true);
+              return handleClick(item.name);
             }}>
             <CardImages
               chunk={item}

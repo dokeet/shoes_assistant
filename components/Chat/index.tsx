@@ -3,19 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { append } from "cheerio/lib/api/manipulation";
 import { Message, CreateMessage } from "ai/react";
 
 interface ChatProps {
   messages: Message[];
   input: string;
-  handleInputChange: (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   append: (message: Message | CreateMessage) => Promise<string | undefined>;
+  isProductHome: boolean;
+  setIsProductHome: (a: boolean) => void;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -24,9 +21,10 @@ const Chat: React.FC<ChatProps> = ({
   handleInputChange,
   handleSubmit,
   append,
+  isProductHome,
+  setIsProductHome,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
-
   const lastMessage = messages
     .filter((item) => item.role === "user")
     .slice(-1)
@@ -39,11 +37,10 @@ const Chat: React.FC<ChatProps> = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: input,
+        query: isProductHome ? lastMessage?.content : input,
         matches: 10,
       }),
     });
-
     if (!searchResponse.ok) {
       throw new Error(searchResponse.statusText);
     }
@@ -60,6 +57,7 @@ const Chat: React.FC<ChatProps> = ({
   useEffect(() => {
     chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
   return (
     <div className="bg-gray-100 flex flex-col justify-between p-4 w-1/3 overflow-y-auto">
       <div className="p-2 flex flex-col">
@@ -120,7 +118,11 @@ const Chat: React.FC<ChatProps> = ({
             type="text"
             className="pl-4 pr-10 py-4 rounded-2xl h-12 mt-4 shadow-md"
             value={input}
-            onChange={handleInputChange}
+            placeholder="I would like to know about Ultraboost"
+            onChange={() => {
+              setIsProductHome(false);
+              return handleInputChange;
+            }}
             onKeyDown={() => handleSubmit}
           />
           <Button
