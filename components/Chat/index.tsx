@@ -49,7 +49,7 @@ const Chat: React.FC<ChatProps> = ({
   };
 
   const { isLoading, data: recomendations } = useQuery({
-    queryKey: ["getRecomendations"],
+    queryKey: ["getRecomendations", messages],
     queryFn: getRecomendations,
     refetchOnWindowFocus: false,
   });
@@ -66,7 +66,7 @@ const Chat: React.FC<ChatProps> = ({
             if (item.role === "user") {
               return (
                 <div key={item.id} className="flex flex-col">
-                  <div className="bg-white shadow-md p-4 rounded-tr-2xl rounded-l-2xl self-end max-w-[240px] w-auto mt-4 text-end">
+                  <div className="bg-gray-600 shadow-md p-4 rounded-tr-2xl rounded-l-2xl self-end max-w-[240px] w-auto mt-4 text-end text-white">
                     {item.content}
                   </div>
                 </div>

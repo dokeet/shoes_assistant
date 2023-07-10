@@ -16,9 +16,9 @@ interface AnswerProps {
 
 const AnswerComponent: React.FC<AnswerProps> = ({ images, answer }) => {
   return (
-    <div className="self-start max-w-xs mt-4 w-full">
+    <div className="self-start max-w-xs mt-6 w-full">
       {answer ? (
-        <div className="shadow-md bg-gray-600 p-4 rounded-tl-2xl rounded-r-2xl font text-sm text-white">
+        <div className="shadow-md bg-white p-4 rounded-tl-2xl rounded-r-2xl font text-sm">
           {answer}
         </div>
       ) : null}

@@ -111,3 +111,10 @@
 .swiper-button-next::after {
   display: none;
 }
+
+.swiper-pagination-bullet-active {
+  background-color: #6b7280 !important;
+}
+.swiper-pagination-fraction {
+  color: #6b7280 !important;
+}
