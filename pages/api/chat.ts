@@ -1,7 +1,6 @@
 import { Configuration, OpenAIApi } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { functions, runFunction } from "./functions";
-import { Nerko_One } from "@next/font/google";
 
 const config = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -39,9 +38,7 @@ const POST = async (req: Request) => {
       createFunctionCallMessages
     ) => {
       const result = await runFunction(name, args);
-      console.log("name", name);
       const newMessages = createFunctionCallMessages(result);
-      // console.log("newMessages", newMessages);
       return openai.createChatCompletion({
         model: "gpt-3.5-turbo-0613",
         stream: true,

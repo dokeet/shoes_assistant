@@ -10,8 +10,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 export default function Home() {
-  const [isProductHome, setIsProductHome] = useState(false);
-  // const [isStreamDone, setisStreamDone] = useState(false);
   const {
     messages,
     append,
@@ -33,13 +31,12 @@ export default function Home() {
       </Head>
       <QueryClientProvider client={queryClient}>
         <Layout>
-          <ProductsList append={append} setIsProductHome={setIsProductHome} />
+          <ProductsList append={append} isStreamDone={aiLoading} />
           <Chat
             messages={messages}
             input={input}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
-            isStreamDone={aiLoading}
           />
         </Layout>
       </QueryClientProvider>

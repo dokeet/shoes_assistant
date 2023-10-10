@@ -1,16 +1,13 @@
-import AnswerComponent from "@/components/Answer/Answer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Input from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Message, CreateMessage } from "ai/react";
-import { ChatRequest, FunctionCallHandler } from "ai";
+import { Message } from "ai/react";
 
 interface ChatProps {
   messages: Message[];
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  isStreamDone: boolean;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -18,19 +15,19 @@ const Chat: React.FC<ChatProps> = ({
   input,
   handleInputChange,
   handleSubmit,
-  isStreamDone,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
   const extractJPGUrls = (str: string): string[] => {
     const regex = /https:\/\/[a-zA-Z0-9\/\._,-]+\.jpg/g;
     const result = str.match(regex);
     return result ? result : [];
   };
-  console.log(messages);
+
   return (
     <div className="bg-gray-100 flex flex-col justify-between p-4 w-1/3 overflow-y-auto">
       <div className="p-2 flex flex-col">
@@ -48,22 +45,22 @@ const Chat: React.FC<ChatProps> = ({
             if (item.role === "assistant") {
               return (
                 <div key={item.id} className="flex flex-col pr-16">
-                  <AnswerComponent
-                    images={extractJPGUrls(item.content)}
-                    answer={item.content}
-                    isStreamDone={isStreamDone}
-                  />
+                  <div className="self-start max-w-xs mt-6 w-full">
+                    <div className="shadow-md bg-white p-4 rounded-tl-2xl rounded-r-2xl font text-sm">
+                      {item.content}
+                    </div>
+                  </div>
                 </div>
               );
             }
           })
         ) : (
           <div className="p-4">
-            <AnswerComponent
-              images={[]}
-              answer="Hi there! I am your Adidas assistant, how can I help you?"
-              isStreamDone={isStreamDone}
-            />
+            <div className="self-start max-w-xs mt-6 w-full">
+              <div className="shadow-md bg-white p-4 rounded-tl-2xl rounded-r-2xl font text-sm">
+                Hi there! I am your Adidas assistant, how can I help you?
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { NextResponse } from "next/server";
 
 const shoes = [
   {
@@ -137,6 +136,6 @@ export default async function handler(
   if (req.method === "GET") {
     res.status(200).json(shoes);
   } else {
-    res.status(405).end(); // Method Not Allowed
+    res.status(405).end();
   }
 }

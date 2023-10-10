@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import CardImages from "../Card";
 import { lowercase } from "@/utils/lowerCase";
@@ -8,12 +8,12 @@ import { baseURL } from "@/utils/baseURL";
 
 interface ProductsListProps {
   append: (message: Message | CreateMessage) => Promise<string>;
-  setIsProductHome: (a: boolean) => void;
+  isStreamDone: boolean;
 }
 
 const ProductsList: React.FC<ProductsListProps> = ({
   append,
-  setIsProductHome,
+  isStreamDone,
 }) => {
   // append the selected product into messages
   const handleClick = async (productName) => {
@@ -22,6 +22,7 @@ const ProductsList: React.FC<ProductsListProps> = ({
       content: `I would like to know about ${lowercase(productName)}`,
     });
   };
+
   const getRecomendations = async () => {
     const searchResponse = await fetch(`${baseURL}/api/shoes`);
     if (!searchResponse.ok) {
@@ -30,11 +31,12 @@ const ProductsList: React.FC<ProductsListProps> = ({
     const results = await searchResponse.json();
     return results;
   };
-  const { isLoading, data: shoes } = useQuery({
+
+  const { data: shoes } = useQuery({
     queryKey: ["getRecomendations"],
     queryFn: getRecomendations,
     refetchOnWindowFocus: false,
-    // enabled: !isStreamDone,
+    enabled: !isStreamDone,
   });
 
   return (
@@ -44,10 +46,7 @@ const ProductsList: React.FC<ProductsListProps> = ({
           <button
             className="m-2"
             key={item.id}
-            onClick={() => {
-              setIsProductHome(true);
-              return handleClick(item.name);
-            }}>
+            onClick={() => handleClick(item.name)}>
             <CardImages
               chunk={item}
               className="flex flex-col w-[250px] h-auto"
