@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import CardImages from "../Card";
 import { lowercase } from "@/utils/lowerCase";
@@ -23,21 +23,27 @@ const ProductsList: React.FC<ProductsListProps> = ({
     });
   };
 
+  const [shoes, setShoes] = useState([]);
+
   const getRecomendations = async () => {
     const searchResponse = await fetch(`${baseURL}/api/shoes`);
     if (!searchResponse.ok) {
       throw new Error(searchResponse.statusText);
     }
     const results = await searchResponse.json();
-    return results;
+    setShoes(results);
   };
 
-  const { data: shoes } = useQuery({
-    queryKey: ["getRecomendations"],
-    queryFn: getRecomendations,
-    refetchOnWindowFocus: false,
-    enabled: !isStreamDone,
-  });
+  // const { data: shoes } = useQuery({
+  //   queryKey: ["getRecomendations"],
+  //   queryFn: getRecomendations,
+  //   refetchOnWindowFocus: false,
+  //   enabled: !isStreamDone,
+  // });
+
+  useEffect(() => {
+    getRecomendations();
+  }, []);
 
   return (
     <div className="overflow-y-auto m-1 flex flex-wrap w-2/3 justify-center">
