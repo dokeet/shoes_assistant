@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import CardImages from "../Card";
 import { lowercase } from "@/utils/lowerCase";
 import { Message, CreateMessage } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
-import { baseURL } from "@/utils/baseURL";
 
 interface ProductsListProps {
   append: (message: Message | CreateMessage) => Promise<string>;
   isStreamDone: boolean;
 }
+
+export const baseURL = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+  : "http://localhost:3000";
 
 const ProductsList: React.FC<ProductsListProps> = ({
   append,
@@ -23,27 +26,21 @@ const ProductsList: React.FC<ProductsListProps> = ({
     });
   };
 
-  const [shoes, setShoes] = useState([]);
-
   const getRecomendations = async () => {
     const searchResponse = await fetch(`${baseURL}/api/shoes`);
     if (!searchResponse.ok) {
       throw new Error(searchResponse.statusText);
     }
     const results = await searchResponse.json();
-    setShoes(results);
+    return results;
   };
 
-  // const { data: shoes } = useQuery({
-  //   queryKey: ["getRecomendations"],
-  //   queryFn: getRecomendations,
-  //   refetchOnWindowFocus: false,
-  //   enabled: !isStreamDone,
-  // });
-
-  useEffect(() => {
-    getRecomendations();
-  }, []);
+  const { data: shoes } = useQuery({
+    queryKey: ["getRecomendations"],
+    queryFn: getRecomendations,
+    refetchOnWindowFocus: false,
+    enabled: !isStreamDone,
+  });
 
   return (
     <div className="overflow-y-auto m-1 flex flex-wrap w-2/3 justify-center">
