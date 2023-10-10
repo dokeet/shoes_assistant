@@ -1,18 +1,22 @@
-import React from "react";
-import { shoes } from "utils/mock";
+import React, { useState } from "react";
 import Image from "next/image";
 import CardImages from "../Card";
 import { lowercase } from "@/utils/lowerCase";
 import { Message, CreateMessage } from "ai/react";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProductsListProps {
   append: (message: Message | CreateMessage) => Promise<string>;
-  setIsProductHome: (a: boolean) => void;
+  isStreamDone: boolean;
 }
+
+export const baseURL = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+  : "http://localhost:3000";
 
 const ProductsList: React.FC<ProductsListProps> = ({
   append,
-  setIsProductHome,
+  isStreamDone,
 }) => {
   // append the selected product into messages
   const handleClick = async (productName) => {
@@ -22,17 +26,30 @@ const ProductsList: React.FC<ProductsListProps> = ({
     });
   };
 
+  const getRecomendations = async () => {
+    const searchResponse = await fetch(`${baseURL}/api/shoes`);
+    if (!searchResponse.ok) {
+      throw new Error(searchResponse.statusText);
+    }
+    const results = await searchResponse.json();
+    return results;
+  };
+
+  const { data: shoes } = useQuery({
+    queryKey: ["getRecomendations"],
+    queryFn: getRecomendations,
+    refetchOnWindowFocus: false,
+    enabled: !isStreamDone,
+  });
+
   return (
     <div className="overflow-y-auto m-1 flex flex-wrap w-2/3 justify-center">
-      {shoes.map((item) => {
+      {shoes?.map((item) => {
         return (
           <button
             className="m-2"
             key={item.id}
-            onClick={() => {
-              setIsProductHome(true);
-              return handleClick(item.name);
-            }}>
+            onClick={() => handleClick(item.name)}>
             <CardImages
               chunk={item}
               className="flex flex-col w-[250px] h-auto"
