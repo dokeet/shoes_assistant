@@ -1,5 +1,3 @@
-import { baseURL } from "@/utils/baseURL";
-
 export const functions = [
   {
     name: "check_shoes_availability",
@@ -34,7 +32,7 @@ export const functions = [
 ];
 
 async function check_shoes_availability(name) {
-  const searchResponse = await fetch(`${baseURL}/api/shoes`);
+  const searchResponse = await fetch("/api/shoes");
 
   if (!searchResponse.ok) {
     throw new Error(searchResponse.statusText);
@@ -81,7 +79,7 @@ async function check_shoes_availability(name) {
 }
 
 async function recommend_other_shoes_available(size) {
-  const searchResponse = await fetch(`${baseURL}/api/shoes`);
+  const searchResponse = await fetch("/api/shoes");
 
   if (!searchResponse.ok) {
     throw new Error(searchResponse.statusText);
