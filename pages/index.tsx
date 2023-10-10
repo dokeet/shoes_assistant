@@ -11,6 +11,7 @@ const queryClient = new QueryClient();
 
 export default function Home() {
   const [isProductHome, setIsProductHome] = useState(false);
+  // const [isStreamDone, setisStreamDone] = useState(false);
   const {
     messages,
     append,
@@ -19,7 +20,6 @@ export default function Home() {
     handleSubmit,
     isLoading: aiLoading,
   } = useChat();
-
   return (
     <div>
       <Head>
@@ -39,9 +39,7 @@ export default function Home() {
             input={input}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
-            append={append}
-            isProductHome={isProductHome}
-            setIsProductHome={setIsProductHome}
+            isStreamDone={aiLoading}
           />
         </Layout>
       </QueryClientProvider>

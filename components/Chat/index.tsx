@@ -1,18 +1,16 @@
 import AnswerComponent from "@/components/Answer/Answer";
 import { useEffect, useRef, useState } from "react";
-import { Input } from "@/components/ui/input";
+import Input from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
 import { Message, CreateMessage } from "ai/react";
+import { ChatRequest, FunctionCallHandler } from "ai";
 
 interface ChatProps {
   messages: Message[];
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  append: (message: Message | CreateMessage) => Promise<string | undefined>;
-  isProductHome: boolean;
-  setIsProductHome: (a: boolean) => void;
+  isStreamDone: boolean;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -20,44 +18,19 @@ const Chat: React.FC<ChatProps> = ({
   input,
   handleInputChange,
   handleSubmit,
-  append,
-  isProductHome,
-  setIsProductHome,
+  isStreamDone,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const lastMessage = messages
-    .filter((item) => item.role === "user")
-    .slice(-1)
-    .pop();
-
-  const getRecomendations = async () => {
-    const searchResponse = await fetch("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: isProductHome ? lastMessage?.content : input,
-        matches: 10,
-      }),
-    });
-    if (!searchResponse.ok) {
-      throw new Error(searchResponse.statusText);
-    }
-    const results = await searchResponse.json();
-    return results;
-  };
-
-  const { isLoading, data: recomendations } = useQuery({
-    queryKey: ["getRecomendations", messages],
-    queryFn: getRecomendations,
-    refetchOnWindowFocus: false,
-  });
 
   useEffect(() => {
     chatContainerRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
+  const extractJPGUrls = (str: string): string[] => {
+    const regex = /https:\/\/[a-zA-Z0-9\/\._,-]+\.jpg/g;
+    const result = str.match(regex);
+    return result ? result : [];
+  };
+  console.log(messages);
   return (
     <div className="bg-gray-100 flex flex-col justify-between p-4 w-1/3 overflow-y-auto">
       <div className="p-2 flex flex-col">
@@ -75,58 +48,37 @@ const Chat: React.FC<ChatProps> = ({
             if (item.role === "assistant") {
               return (
                 <div key={item.id} className="flex flex-col pr-16">
-                  {!isLoading ? (
-                    <AnswerComponent
-                      images={recomendations}
-                      answer={item.content}
-                    />
-                  ) : (
-                    <div className="animate-pulse mt-2">
-                      <div className="h-4 bg-gray-300 rounded"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                    </div>
-                  )}
+                  <AnswerComponent
+                    images={extractJPGUrls(item.content)}
+                    answer={item.content}
+                    isStreamDone={isStreamDone}
+                  />
                 </div>
               );
             }
           })
         ) : (
           <div className="p-4">
-            {!isLoading ? (
-              <AnswerComponent
-                images={recomendations}
-                answer="Hi there! I am your Adidas assistant, how can I help you?"
-              />
-            ) : (
-              <div className="animate-pulse mt-2">
-                <div className="h-4 bg-gray-300 rounded"></div>
-                <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                <div className="h-4 bg-gray-300 rounded mt-2"></div>
-              </div>
-            )}
+            <AnswerComponent
+              images={[]}
+              answer="Hi there! I am your Adidas assistant, how can I help you?"
+              isStreamDone={isStreamDone}
+            />
           </div>
         )}
       </div>
-      <div className="relative" ref={chatContainerRef}>
+      <div className="relative">
         <form onSubmit={handleSubmit}>
           <Input
             type="text"
             className="pl-4 pr-10 py-4 rounded-2xl h-12 mt-4 shadow-md"
             value={input}
             placeholder="I would like to know about Ultraboost"
-            onChange={() => {
-              setIsProductHome(false);
-              return handleInputChange;
-            }}
+            onChange={handleInputChange}
             onKeyDown={() => handleSubmit}
           />
           <Button
-            onClick={() => handleSubmit}
+            type="submit"
             className="text-xs lg:text-sm absolute bottom-1 right-0 bg-transparent hover:bg-transparent">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -142,6 +94,7 @@ const Chat: React.FC<ChatProps> = ({
               />
             </svg>
           </Button>
+          <div ref={chatContainerRef}></div>
         </form>
       </div>
     </div>
