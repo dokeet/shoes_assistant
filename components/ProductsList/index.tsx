@@ -10,10 +10,6 @@ interface ProductsListProps {
   isStreamDone: boolean;
 }
 
-export const baseURL = process.env.NEXT_PUBLIC_VERCEL_URL
-  ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
-  : "http://localhost:3000";
-
 const ProductsList: React.FC<ProductsListProps> = ({
   append,
   isStreamDone,
@@ -27,7 +23,7 @@ const ProductsList: React.FC<ProductsListProps> = ({
   };
 
   const getRecomendations = async () => {
-    const searchResponse = await fetch(`${baseURL}/api/shoes`);
+    const searchResponse = await fetch("/api/shoes");
     if (!searchResponse.ok) {
       throw new Error(searchResponse.statusText);
     }
